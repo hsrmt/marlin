@@ -2660,14 +2660,14 @@
  *
  * LED Type. Enable only one of the following two options.
  */
-//#define RGB_LED
+#define RGB_LED
 //#define RGBW_LED
 
 #if EITHER(RGB_LED, RGBW_LED)
-  //#define RGB_LED_R_PIN 34
-  //#define RGB_LED_G_PIN 43
-  //#define RGB_LED_B_PIN 35
-  //#define RGB_LED_W_PIN -1
+  #define RGB_LED_R_PIN P1_19
+  #define RGB_LED_G_PIN P1_20
+  #define RGB_LED_B_PIN P1_21
+  #define RGB_LED_W_PIN P1_18
 #endif
 
 // Support for Adafruit NeoPixel LED driver
@@ -2709,9 +2709,10 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
-  #define PRINTER_EVENT_LEDS
-#endif
+
+// #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+//   #define PRINTER_EVENT_LEDS
+// #endif
 
 /**
  * Number of servos
