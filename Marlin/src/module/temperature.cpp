@@ -35,6 +35,16 @@
 #include "endstops.h"
 #include "planner.h"
 
+#include "../lcd/extui/lib/dgus/fysetc/DGUSScreenHandler.h"
+#include "../lcd/extui/lib/dgus/origin/DGUSScreenHandler.h"
+//#include "../gcode/feature/leds/M150.cpp"
+//#include "../../../gcode/queue.h
+
+ #include "../gcode/gcode.h"
+#include "../feature/leds/leds.h"
+
+
+
 #if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
@@ -665,8 +675,13 @@ volatile bool Temperature::raw_temps_ready = false;
                 temp_change_ms = ms + SEC_TO_MS(watch_temp_period);     // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
+              else if (ELAPSED(ms, temp_change_ms)) {                  // Watch timer expired
+                char buf[10] = "M150 R255";
+                //queue.enqueue_one_P(PSTR("M150 R255"));
+                queue.enqueue_one_now(buf);
+               
                 _temp_error(heater_id, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+              }
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
               _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
@@ -913,7 +928,9 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     else
       SERIAL_ECHOPGM(STR_HEATER_BED);
     SERIAL_EOL();
+
   }
+
 
   disable_all_heaters(); // always disable (even for bogus temp)
   watchdog_refresh();
@@ -1253,6 +1270,9 @@ void Temperature::manage_heater() {
           else {
             TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+                //             char buf[12] = "M150 R255\n";
+                // queue.enqueue_one_P(buf);
+               // queue.enqueue_one_P(PSTR("M150 R255"));
           }
         }
       #endif
@@ -1295,7 +1315,11 @@ void Temperature::manage_heater() {
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
           TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
-          _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+                leds.set_color(255,0,0);
+                //char buf[10] = "M150 B255";
+                //queue.enqueue_one_P(PSTR("M150 R255"));
+                //queue.enqueue_one_now(buf);
+                _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
         }
       }
     #endif // WATCH_BED
