@@ -838,7 +838,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
 
   // "Error:Printer halted. kill() called!"
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
-  leds.set_color(255,255,0);
+  //leds.set_color(255,255,0);
   #ifdef ACTION_ON_KILL
     host_action_kill();
   #endif
