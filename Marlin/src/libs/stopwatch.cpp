@@ -23,6 +23,7 @@
 #include "stopwatch.h"
 
 #include "../inc/MarlinConfig.h"
+#include "../feature/leds/leds.h" 
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
@@ -40,6 +41,7 @@ bool Stopwatch::stop() {
     TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     state = STOPPED;
     stopTimestamp = millis();
+     leds.set_color(255,255,0);
     return true;
   }
   else return false;

@@ -938,7 +938,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
       SERIAL_ECHOPGM(STR_HEATER_BED);
     SERIAL_EOL();
   }
-
+  leds.set_color(255,0,0);
   disable_all_heaters(); // always disable (even for bogus temp)
   watchdog_refresh();
 
