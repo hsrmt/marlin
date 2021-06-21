@@ -127,7 +127,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_MKS_SGEN_L
+  #define MOTHERBOARD BOARD_MKS_SGEN_L_V2 
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -154,6 +154,13 @@
 #if ENABLED(SINGLENOZZLE)
   //#define SINGLENOZZLE_STANDBY_TEMP
   //#define SINGLENOZZLE_STANDBY_FAN
+#endif
+#if ENABLED(MK2_MULTIPLEXER)
+  // Override the default DIO selector pins here, if needed.
+  // Some pins files may provide defaults for these pins.
+  //#define E_MUX0_PIN 40  // Always Required
+  //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
+  //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
 #endif
 
 /**
@@ -182,7 +189,7 @@
 #endif
 
 // A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles
-//#define SWITCHING_NOZZLE
+#define SWITCHING_NOZZLE
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
   //#define SWITCHING_NOZZLE_E1_SERVO_NR 1          // If two servos are used, the index of the second
@@ -647,7 +654,10 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+#define THERMAL_PROTECTION_BED    // Enable thermal protection for the heated bed
+
+
+
 //#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
 //#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
@@ -919,7 +929,7 @@
  *      - normally-closed switches to GND and D32.
  *      - normally-open switches to 5V and D32.
  */
-//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default
+#define Z_MIN_PROBE_PIN P1_25 // Pin 32 is the RAMPS default
 
 /**
  * Probe Type
@@ -2614,7 +2624,7 @@
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 // :[0,1,2,3,4,5,6,7]
-#define SOFT_PWM_SCALE 0
+#define SOFT_PWM_SCALE 3
 
 // If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
 // be used to mitigate the associated resolution loss. If enabled,
@@ -2625,7 +2635,9 @@
 // Temperature status LEDs that display the hotend and bed temperature.
 // If all hotends, bed temperature, and target temperature are under 54C
 // then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
-//#define TEMP_STAT_LEDS
+#define TEMP_STAT_LEDS
+ #define STAT_LED_RED_PIN       P1_19
+//#define STAT_LED_BLUE_PIN      P1_21
 
 // Support for the BariCUDA Paste Extruder
 //#define BARICUDA
@@ -2634,10 +2646,10 @@
 //#define BLINKM
 
 // Support for PCA9632 PWM LED driver
-//#define PCA9632
+#define PCA9632
 
 // Support for PCA9533 PWM LED driver
-//#define PCA9533
+#define PCA9533
 
 /**
  * RGB LED / LED Strip Control
@@ -2675,15 +2687,15 @@
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN     4       // LED driving pin
-  //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
-  //#define NEOPIXEL2_PIN    5
+  #define NEOPIXEL2_TYPE NEOPIXEL_TYPE
+  #define NEOPIXEL2_PIN    5
   #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
-  //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+  #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 
   // Support for second Adafruit NeoPixel LED driver controlled with M150 S1 ...
-  //#define NEOPIXEL2_SEPARATE
+  #define NEOPIXEL2_SEPARATE
   #if ENABLED(NEOPIXEL2_SEPARATE)
     #define NEOPIXEL2_PIXELS      15  // Number of LEDs in the second strip
     #define NEOPIXEL2_BRIGHTNESS 127  // Initial brightness (0-255)
@@ -2693,9 +2705,9 @@
   #endif
 
   // Use a single NeoPixel LED for static (background) lighting
-  //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
-  //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
-  //#define NEOPIXEL_BKGD_ALWAYS_ON                  // Keep the backlight on when other NeoPixels are off
+  #define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
+  #define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
+  #define NEOPIXEL_BKGD_ALWAYS_ON                  // Keep the backlight on when other NeoPixels are off
 #endif
 
 /**
@@ -2709,10 +2721,9 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-
-// #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
-//   #define PRINTER_EVENT_LEDS
-// #endif
+#if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+  #define PRINTER_EVENT_LEDS
+#endif
 
 /**
  * Number of servos
@@ -2721,12 +2732,12 @@
  * Set this manually if there are extra servos needing manual control.
  * Set to 0 to turn off servo support.
  */
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
 
 // (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY { 300 , 300 }
+#define SERVO_DELAY { 300  }
 
 // Only power servos during movement, otherwise leave off to prevent jitter
 //#define DEACTIVATE_SERVOS_AFTER_MOVE

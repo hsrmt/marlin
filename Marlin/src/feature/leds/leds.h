@@ -171,6 +171,7 @@ public:
   static inline void set_off()   { set_color(LEDColorOff()); }
   static inline void set_green() { set_color(LEDColorGreen()); }
   static inline void set_white() { set_color(LEDColorWhite()); }
+  static inline void set_red() { set_color(LEDColorRed()); }
 
   #if ENABLED(LED_COLOR_PRESETS)
     static const LEDColor defaultLEDColor;

@@ -62,8 +62,8 @@ PrinterEventLEDs printerEventLEDs;
     const uint8_t blue = pel_intensity(start, current, target);
     if (blue != old_intensity) {
       old_intensity = blue;
-      pel_set_rgb(255, 0, 255 - blue);
-    }
+      //pel_set_rgb(255, 0, 255 - blue);
+   }
   }
 
 #endif
@@ -74,7 +74,7 @@ PrinterEventLEDs printerEventLEDs;
     const uint8_t red = pel_intensity(start, current, target);
     if (red != old_intensity) {
       old_intensity = red;
-      pel_set_rgb(red, 0, 255);
+      //pel_set_rgb(red, 0, 255);
     }
   }
 
@@ -83,13 +83,16 @@ PrinterEventLEDs printerEventLEDs;
 #if HAS_HEATED_CHAMBER
 
   void PrinterEventLEDs::onChamberHeating(const celsius_t start, const celsius_t current, const celsius_t target) {
-    const uint8_t green = pel_intensity(start, current, target);
+   const uint8_t green = pel_intensity(start, current, target);
     if (green != old_intensity) {
       old_intensity = green;
-      pel_set_rgb(255, green, 255);
+      //pel_set_rgb(255, green, 255);
     }
   }
 
 #endif
+
+
+
 
 #endif // PRINTER_EVENT_LEDS

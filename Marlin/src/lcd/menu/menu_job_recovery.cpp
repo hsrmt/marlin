@@ -51,7 +51,6 @@ void menu_job_recovery() {
   STATIC_ITEM(MSG_OUTAGE_RECOVERY);
   ACTION_ITEM(MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
   ACTION_ITEM(MSG_STOP_PRINT, lcd_power_loss_recovery_cancel);
-  leds.set_color(255,255,0);
   END_MENU();
 }
 

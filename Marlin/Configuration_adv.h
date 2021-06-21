@@ -258,7 +258,7 @@
    * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
    * below 2.
    */
-  #define WATCH_TEMP_PERIOD  30              // Seconds
+  #define WATCH_TEMP_PERIOD  30               // Seconds
   #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -272,8 +272,9 @@
   /**
    * As described above, except for the bed (M140/M190/M303).
    */
-  #define WATCH_BED_TEMP_PERIOD                120// Seconds
+  #define WATCH_BED_TEMP_PERIOD               120 // Seconds
   #define WATCH_BED_TEMP_INCREASE               2 // Degrees Celsius
+  
 #endif
 
 /**
@@ -382,10 +383,12 @@
   #define AUTOTEMP_OLDWEIGHT    0.98
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
+  
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
     #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
     #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
     #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
+  
   #endif
 #endif
 
@@ -589,7 +592,7 @@
     //#define CASE_LIGHT_USE_RGB_LED          // Use RGB / RGBW LED as case light
   #endif
   #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
-    #define CASE_LIGHT_DEFAULT_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
+    //#define CASE_LIGHT_DEFAULT_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
 #endif
 
@@ -2564,7 +2567,7 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT      400
+    #define E0_CURRENT      350
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
@@ -2572,7 +2575,7 @@
   #endif
 
   #if AXIS_IS_TMC(E1)
-    #define E1_CURRENT      400
+    #define E1_CURRENT      350
     #define E1_MICROSTEPS   E0_MICROSTEPS
     #define E1_RSENSE         0.11
     #define E1_CHAIN_POS     -1
@@ -2809,7 +2812,6 @@
   #define SENSORLESS_HOMING // StallGuard capable drivers only
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
-  
     // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  60
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY

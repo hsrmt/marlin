@@ -30,20 +30,34 @@
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 #include "../lcd/marlinui.h"
-
+#include "../inc/MarlinConfigPre.h"
 #include "temperature.h"
 #include "endstops.h"
 #include "planner.h"
+#include "../lcd/extui/lib/nextion/nextion_tft_defs.h"
+#include "../inc/MarlinConfig.h"
+#include "../lcd/extui/lib/nextion/nextion_tft.h"
+#include "../../../Marlin/src/gcode/gcode.h"
+#include "../../../Marlin/src/feature/leds/printer_event_leds.h"
+#include "../../../Marlin/src/feature/leds/leds.h"
+#include "../.pio/libdeps/LPC1768/U8glib-HAL/src/U8glib.h"
 
-#include "../lcd/extui/lib/dgus/fysetc/DGUSScreenHandler.h"
-#include "../lcd/extui/lib/dgus/origin/DGUSScreenHandler.h"
-//#include "../gcode/feature/leds/M150.cpp"
-//#include "../../../gcode/queue.h
+ u8g_t u8g; 
+#if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
- #include "../gcode/gcode.h"
-#include "../feature/leds/leds.h"
+  inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
+    leds.set_color(
+      MakeLEDColor(r, g, b, 0, neo.brightness())
+      #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+        , true
+      #endif
+    );
+  }
 
+#endif
 
+#define MakeLEDColor(R,G,B,W)   LEDColor(R, G, B)
+#define SEND_TXT(x,y)   (nextion.SendtoTFT(PSTR(x)), nextion.SendtoTFT(PSTR(".txt=\"")), nextion.SendtoTFT(PSTR(y)),  nextion.SendtoTFT(PSTR("\"\xFF\xFF\xFF")))
 
 #if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
@@ -675,20 +689,11 @@ volatile bool Temperature::raw_temps_ready = false;
                 temp_change_ms = ms + SEC_TO_MS(watch_temp_period);     // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms)) {                  // Watch timer expired
-                // char buf[10] = "M150 R255";
-                // queue.enqueue_one_now(buf);
-               // leds.set_color(255,0,255);
-                 // //queue.enqueue_one_P(PSTR("M150 R255"));
-
-               
+              else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
                 _temp_error(heater_id, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
-              }
             }
-            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)){ // Heated, then temperature fell too far?
+            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
               _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
-                 leds.set_color(0,255,255);
-            }
           }
         #endif
       } // every 2 seconds
@@ -913,7 +918,6 @@ inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
     WRITE(BEEPER_PIN, HIGH);
   #endif
   kill(lcd_msg, HEATER_PSTR(heater_id));
-  leds.set_color(255,255,255); //THIS WAS JUST RED
 }
 
 void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_msg, PGM_P const lcd_msg) {
@@ -924,7 +928,6 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     SERIAL_ERROR_START();
     SERIAL_ECHOPGM_P(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
-   
     if (heater_id >= 0)
       SERIAL_ECHO(heater_id);
     else if (TERN0(HAS_HEATED_CHAMBER, heater_id == H_CHAMBER))
@@ -934,10 +937,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     else
       SERIAL_ECHOPGM(STR_HEATER_BED);
     SERIAL_EOL();
-
   }
-
- leds.set_color(255,0,0);
 
   disable_all_heaters(); // always disable (even for bogus temp)
   watchdog_refresh();
@@ -962,7 +962,6 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     UNUSED(killed);
   #else
     if (!killed) { killed = 1; loud_kill(lcd_msg, heater_id); }
-      
   #endif
 }
 
@@ -971,15 +970,12 @@ void Temperature::max_temp_error(const heater_id_t heater_id) {
     DWIN_Popup_Temperature(1);
   #endif
   _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
-    //leds.set_color(255,255,255);
 }
-
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {
   #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(0);
   #endif
- // leds.set_color(255,127,0);
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
@@ -1281,10 +1277,7 @@ void Temperature::manage_heater() {
           else {
             TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
-                // char buf[12] = "M150 R255\n";
-                // queue.enqueue_one_P(PSTR("M150 R255"));
-                leds.set_color(255,255,0);
-                // queue.enqueue_one_P(buf);
+       
           }
         }
       #endif
@@ -1314,13 +1307,14 @@ void Temperature::manage_heater() {
     filwidth.update_volumetric();
   #endif
 
+
+
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
       if (degBed() > BED_MAXTEMP) max_temp_error(H_BED);
-      // leds.set_color(255,0,0);
     #endif
-
+    
     #if WATCH_BED
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {              // Time to check the bed?
@@ -1328,14 +1322,18 @@ void Temperature::manage_heater() {
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
           TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
-              
-                
-                //char buf[10] = "M150 B255";
-                //queue.enqueue_one_now(buf);
+          //_temp_error(H_BED, str_t_heating_failed, "Hatıce");
+          _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+       
 
-                //queue.enqueue_one_P(PSTR("M150 R255"));
-                _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
-                  leds.set_color(255,0,0);
+  // MakeLEDColor(255, 0, 0, 0);
+      
+//   #if HAS_GREEN_LED 
+//   #define LEDColorRED()         LEDColor(  255,   0,   0, 0)
+// #else
+//   #define LEDColorRED()         LEDColor(255, 0, 0)
+// #endif
+          //SEND_TXT("tmppage.M117", "HATICE Preheat disabled");
         }
       }
     #endif // WATCH_BED
@@ -1362,6 +1360,7 @@ void Temperature::manage_heater() {
 
       #if HAS_THERMALLY_PROTECTED_BED
         tr_state_machine[RUNAWAY_IND_BED].run(temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
+    
       #endif
 
       #if HEATER_IDLE_HANDLER
@@ -1415,7 +1414,6 @@ void Temperature::manage_heater() {
         if (watch_chamber.check(degChamber()))  // Increased enough? Error below.
           start_watching_chamber();             // If temp reached, turn off elapsed check.
         else
-        leds.set_color(0,0,255);
           _temp_error(H_CHAMBER, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
       }
     #endif
@@ -2444,7 +2442,6 @@ void Temperature::init() {
       case TRRunaway:
         TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
         _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
-        leds.set_color(255,0,0);
     }
   }
 
@@ -2810,7 +2807,6 @@ void Temperature::readings_ready() {
             if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
           #endif
               min_temp_error((heater_id_t)e);
-              //leds.set_color(225,0,0);
         }
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
           else
