@@ -549,6 +549,7 @@ void lv_clear_print_file() {
     if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
   #endif
   lv_obj_del(scr);
+
 }
 
 #endif // HAS_TFT_LVGL_UI

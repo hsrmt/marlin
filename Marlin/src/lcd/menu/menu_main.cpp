@@ -257,6 +257,7 @@ void menu_main() {
   if (busy) {
     #if MACHINE_CAN_PAUSE
       ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
+       leds.set_color(0,255,255); //THIS WAS JUST RED
     #endif
     #if MACHINE_CAN_STOP
       SUBMENU(MSG_STOP_PRINT, []{
@@ -264,6 +265,7 @@ void menu_main() {
           GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
           ui.abort_print, ui.goto_previous_screen,
           GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
+          leds.set_color(255,255,0);
         );
       });
     #endif

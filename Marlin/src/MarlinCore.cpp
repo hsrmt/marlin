@@ -349,6 +349,7 @@ bool printingIsActive() {
  */
 bool printingIsPaused() {
   return did_pause_print || print_job_timer.isPaused() || IS_SD_PAUSED();
+  leds.set_color(0,255,255);
 }
 
 void startOrResumeJob() {
@@ -359,6 +360,7 @@ void startOrResumeJob() {
     #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
       ui.reset_remaining_time();
     #endif
+     //leds.set_color(255,0,0);
   }
   print_job_timer.start();
 }
@@ -475,6 +477,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     const int KILL_DELAY = 750;
     if (kill_state())
       killCount++;
+       leds.set_color(0,0,0 );
     else if (killCount > 0)
       killCount--;
 
@@ -838,7 +841,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
 
   // "Error:Printer halted. kill() called!"
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
-
+  leds.set_color(255,255,0); //THIS WAS JUST RED
   #ifdef ACTION_ON_KILL
     host_action_kill();
   #endif
@@ -896,7 +899,8 @@ void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
 
   print_job_timer.stop();
-
+  leds.set_color(0,0,0);
+  
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
     thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
@@ -904,8 +908,10 @@ void stop() {
   if (IsRunning()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
+    leds.set_color(255,125,0); //THIS WAS JUST RED
     safe_delay(350);       // allow enough time for messages to get out before stopping
     marlin_state = MF_STOPPED;
+    leds.set_color(0,0,0);
   }
 }
 
